@@ -1,0 +1,32 @@
+# ----------------------------------------------------
+# Task 4 — Firewall Setup and Testing (Windows)
+# ----------------------------------------------------
+# This PowerShell script:
+#   1. Shows current inbound rules
+#   2. Adds rule to block Telnet (port 23)
+#   3. Tests connection
+#   4. Deletes the rule and restores config
+# ----------------------------------------------------
+
+Write-Host "=== Checking current inbound firewall rules ==="
+Get-NetFirewallRule -Direction Inbound -Enabled True | Select-Object DisplayName, Action, Enabled, Profile
+
+Write-Host "=== Adding new rule to block inbound Telnet (port 23) ==="
+New-NetFirewallRule -DisplayName "Block-Telnet-23" -Direction Inbound -Action Block -Protocol TCP -LocalPort 23 -Profile Any
+
+Write-Host "=== Verifying new rule ==="
+Get-NetFirewallRule -DisplayName "Block-Telnet-23" | Format-List *
+
+Write-Host "=== Testing connection to port 23 on localhost ==="
+Test-NetConnection -ComputerName localhost -Port 23
+
+Write-Host "=== Testing connection to port 22 (for comparison) ==="
+Test-NetConnection -ComputerName localhost -Port 22
+
+Write-Host "=== Deleting the Telnet block rule ==="
+Remove-NetFirewallRule -DisplayName "Block-Telnet-23"
+
+Write-Host "=== Confirming rule deletion ==="
+Get-NetFirewallRule -DisplayName "Block-Telnet-23"
+
+Write-Host "=== Firewall task completed successfully ==="
